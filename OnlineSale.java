@@ -97,6 +97,7 @@ public class OnlineSale {
 
             double itemTotal = item.getUnitPrice() * quantity;
             System.out.printf("        item total: $  %.2f\n", itemTotal);
+            
             purchasedItems[index++] = String.format("    %d %s         $  %.2f", quantity, item.getItemName(), itemTotal);
             subtotal += itemTotal;
         }
@@ -109,6 +110,7 @@ public class OnlineSale {
         if (Arrays.stream(purchasedItems).anyMatch(s -> s != null && s.startsWith("    E"))) {
             totalWithTax = subtotal * (1 + SALESTAX);
             System.out.printf("Total with Tax (6%%)         $  %.2f\n", totalWithTax);
+            System.out.println("-----------------");
         }
         return totalWithTax;
     }
