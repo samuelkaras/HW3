@@ -27,7 +27,7 @@ public class OnlineSale {
 
         while (true) {
         	System.out.println("");
-            System.out.println("Beginning a new sale (Y/N) ");
+            System.out.print("Beginning a new sale (Y/N) ");
             String startNewSale = scanner.nextLine().trim().toLowerCase();
             if (startNewSale.equals("n")) break;
 
@@ -35,7 +35,9 @@ public class OnlineSale {
             totalSales += saleTotal;
         }
 
+        System.out.println("");
         System.out.printf("The total sale for the day is  $  %.2f\n", totalSales);
+        System.out.println("");
         System.out.println("Thanks for using Karas's online sale system. Goodbye!");
         scanner.close();
     }
@@ -68,15 +70,15 @@ public class OnlineSale {
         String[] purchasedItems = new String[MAX_NUM_ITEMS];
         int index = 0;
 
+        System.out.println("--------------------");
         while (true) {
-            System.out.println("--------------------");
             System.out.print("Enter product code: ");
             String productCode = scanner.nextLine().trim();
             if (productCode.equals("-1")) break;
 
             Item item = findItemByCode(productCode);
             if (item == null) {
-                System.out.println("!!! Invalid product code");
+                System.out.print("!!! Invalid product code\n");
                 continue;
             }
 
@@ -89,7 +91,7 @@ public class OnlineSale {
                 quantity = Integer.parseInt(quantityInput);
                 if (quantity <= 0) throw new NumberFormatException();
             } catch (NumberFormatException e) {
-                System.out.println("!!! Invalid quantity");
+                System.out.print("!!! Invalid quantity\n");
                 continue;
             }
 
