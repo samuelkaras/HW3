@@ -30,9 +30,20 @@ public class OnlineSale {
 
         while (true) {
             System.out.println("");
-            System.out.print("Beginning a new sale (Y/N) ");
-            String startNewSale = scanner.nextLine().trim().toLowerCase();
-            if (startNewSale.equals("n")) break;
+            String startNewSale;
+            while (true) {
+                System.out.print("Beginning a new sale (Y/N) ");
+                startNewSale = scanner.nextLine().trim().toLowerCase();
+                if (startNewSale.equals("y") || startNewSale.equals("n")) {
+                    break;
+                } else {
+                    System.out.println("Invalid input. Please enter Y or N.");
+                }
+            }
+            
+            if (startNewSale.equals("n")) {
+                break;
+            }
 
             double saleTotal = processSale(scanner);
             totalSales += saleTotal;
