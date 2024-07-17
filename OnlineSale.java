@@ -16,7 +16,7 @@ public class OnlineSale {
 
 	private static final double SALESTAX = 0.06;
 	private static final int MAX_ITEMS_CSV = 15;
-	private static Item[] items = new Item[MAX_ITEMS_CSV];
+	private static Item[] items = new Item[MAX_ITEMS_CSV]; // Array of max item size of the csv file
 
 	/**
 	 * Main method is contained in OnlineSale class
@@ -59,10 +59,10 @@ public class OnlineSale {
 	}
 
 	/**
-	 * Loads items method loads from a CSV file into the items array.
+	 * loadsItems method loads from a CSV file into the items array.
 	 */
 	private static void loadItems() {
-		String fileName = "items.csv"; // File Name for Online Sale Items
+		String fileName = "items.csv"; // File Name for Online Sale Items csv file
 		try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
 			String currLine;
 			int index = 0;
@@ -87,76 +87,74 @@ public class OnlineSale {
 	}
 
 	/**
-	 * This method processes a sale by asking the user for product codes and quantities. 
-	 * This method calculates the subtotal, total with tax, and prints the items list.
+	 * This method processes a sale by asking the user for product codes and
+	 * quantities. This method calculates the subtotal, total with tax, and prints
+	 * the items list.
 	 * 
-	 * @param scanner The Scanner object for reading user input.
+	 * @param scanner The Scanner object that reads user input.
 	 * @return The total amount for the sale including tax.
 	 */
 	private static double processSale(Scanner scanner) {
-	    double subtotal = 0.0;
-	    String[] purchasedItems = new String[MAX_ITEMS_CSV];
-	    int index = 0;
+		double subtotal = 0.0;
+		double subtotalTaxable = 0.0;
+		String[] purchasedItems = new String[MAX_ITEMS_CSV];
+		int index = 0;
 
-	    // Flag to determine whether a product can be taxed or not
-	    boolean taxFlg = true; // Assume tax applies unless item code contains E
+		System.out.println("----------------------------");
+		while (true) {
+			System.out.print("Enter product code: ");
+			String productCode = scanner.nextLine().trim();
+			if (productCode.equals("-1"))
+				break;
 
-	    System.out.println("----------------------------");
-	    while (true) {
-	        System.out.print("Enter product code: ");
-	        String productCode = scanner.nextLine().trim();
-	        if (productCode.equals("-1"))
-	            break;
+			Item item = findItem(productCode);
+			if (item == null) {
+				System.out.print("!!! Invalid product code\n");
+				continue;
+			}
 
-	        Item item = findItem(productCode);
-	        if (item == null) {
-	            System.out.print("!!! Invalid product code\n");
-	            continue;
-	        }
+			System.out.printf("         item name: %s\n", item.getItemName());
 
-	        System.out.printf("         item name: %s\n", item.getItemName());
+			int quantity = -1; // Initialize quantity with an invalid value to trigger prompt
+			while (quantity < 0) {
+				System.out.print("Enter quantity:     ");
+				String quantityInput = scanner.nextLine().trim();
+				try {
+					quantity = Integer.parseInt(quantityInput);
+					if (quantity <= 0)
+						throw new NumberFormatException(); // Throw and catch exception when needed
+				} catch (NumberFormatException e) {
+					System.out.print("!!! Invalid quantity\n");
+					quantity = -1; // Reset quantity to an invalid value for next prompt
+				}
+			}
 
-	        int quantity = -1; // Initialize quantity with an invalid value to trigger prompt
-	        while (quantity < 0) {
-	            System.out.print("Enter quantity:     ");
-	            String quantityInput = scanner.nextLine().trim();
-	            try {
-	                quantity = Integer.parseInt(quantityInput);
-	                if (quantity <= 0)
-	                    throw new NumberFormatException();
-	            } catch (NumberFormatException e) {
-	                System.out.print("!!! Invalid quantity\n");
-	                quantity = -1; // Reset quantity to an invalid value for next prompt
-	            }
-	        }
+			double itemTotal = item.getUnitPrice() * quantity;
+			System.out.printf("      item total: $  %.2f\n", itemTotal); // Format the output
 
-	        double itemTotal = item.getUnitPrice() * quantity;
-	        System.out.printf("      item total: $  %.2f\n", itemTotal);
+			purchasedItems[index++] = String.format("    %-1d %-17s    $%8.2f", quantity, item.getItemName(),
+					itemTotal);
 
-	        if (item.getItemCode().contains("E")) {
-	            taxFlg = false; // Item is not taxed because its item code contains "E"
-	        }
+			// Check if item code contains "E" to determine if tax should apply
+			if (item.getItemCode().contains("E")) {
+				subtotal += itemTotal; // Item is not taxed
+			} else {
+				subtotalTaxable += itemTotal; // Item is taxed
+			}
+		}
 
-	        purchasedItems[index++] = String.format("    %-1d %-17s    $%8.2f", quantity, item.getItemName(), itemTotal);
-	        subtotal += itemTotal;
-	    }
+		double totalWithTax = subtotalTaxable * (1 + SALESTAX) + subtotal; // Calculate the total with tax
 
-	    double totalWithTax = subtotal;
-	    System.out.println("----------------------------");
-	    System.out.println("Items list:");
-	    for (int i = 0; i < index; i++) {
-	        System.out.println(purchasedItems[i]);
-	    }
-	    System.out.printf("%-26s $%8.2f\n", "Subtotal", subtotal);
+		System.out.println("----------------------------");
+		System.out.println("Items list:");
+		for (int i = 0; i < index; i++) {
+			System.out.println(purchasedItems[i]);
+		}
+		System.out.printf("%-26s $%8.2f\n", "Subtotal", subtotal + subtotalTaxable); // Format and print the outputs
+		System.out.printf("%-20s $%8.2f\n", "Total with Tax (6%)       ", totalWithTax);
+		System.out.println("----------------------------");
 
-	    if (taxFlg) {
-	        totalWithTax = subtotal * (1 + SALESTAX);
-	    }
-
-	    System.out.printf("%-20s $%8.2f\n", "Total with Tax (6%)       ", totalWithTax);
-	    System.out.println("----------------------------");
-
-	    return totalWithTax;
+		return totalWithTax;
 	}
 
 	/**
@@ -191,9 +189,9 @@ class Item {
 	 * provided value.
 	 * 
 	 * @param itemCode        The product code.
-	 * @param itemName        The name of the product.
-	 * @param itemDescription The description of the product.
-	 * @param unitPrice       The unit price of the product.
+	 * @param itemName        The name of the item.
+	 * @param itemDescription The description of the item.
+	 * @param unitPrice       The unit price of the item.
 	 */
 	public Item(String itemCode, String itemName, String itemDescription, double unitPrice) {
 		this.itemCode = itemCode;
@@ -203,34 +201,34 @@ class Item {
 	}
 
 	/**
-	 * Gets the product code.
+	 * Gets the item code.
 	 * 
-	 * @return The product code.
+	 * @return The item code.
 	 */
 	public String getItemCode() {
 		return itemCode;
 	}
 
 	/**
-	 * Gets the product name.
+	 * Gets the item name.
 	 * 
-	 * @return The product name.
+	 * @return The item name.
 	 */
 	public String getItemName() {
 		return itemName;
 	}
 
 	/**
-	 * Gets the product description.
+	 * Gets the item description.
 	 * 
-	 * @return The product description.
+	 * @return The item description.
 	 */
 	public String getItemDescription() {
 		return itemDescription;
 	}
 
 	/**
-	 * Gets the unit price of the product.
+	 * Gets the unit price of the item.
 	 * 
 	 * @return The unit price.
 	 */
