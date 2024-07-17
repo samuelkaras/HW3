@@ -69,8 +69,9 @@ public class OnlineSale {
         double subtotal = 0.0;
         String[] purchasedItems = new String[MAX_NUM_ITEMS];
         int index = 0;
+        boolean containsE = false;
 
-        System.out.println("--------------------");
+        System.out.println("----------------------------");
         while (true) {
             System.out.print("Enter product code: ");
             String productCode = scanner.nextLine().trim();
@@ -84,34 +85,43 @@ public class OnlineSale {
 
             System.out.printf("         item name: %s\n", item.getItemName());
 
-            System.out.print("Enter quantity:     ");
-            String quantityInput = scanner.nextLine().trim();
-            int quantity;
-            try {
-                quantity = Integer.parseInt(quantityInput);
-                if (quantity <= 0) throw new NumberFormatException();
-            } catch (NumberFormatException e) {
-                System.out.print("!!! Invalid quantity\n");
-                continue;
+            int quantity = -1;  // Initialize quantity with an invalid value
+            while (quantity < 0) {
+                System.out.print("Enter quantity:     ");
+                String quantityInput = scanner.nextLine().trim();
+                try {
+                    quantity = Integer.parseInt(quantityInput);
+                    if (quantity <= 0) throw new NumberFormatException();
+                } catch (NumberFormatException e) {
+                    System.out.print("!!! Invalid quantity\n");
+                    quantity = -1;  // Reset quantity to an invalid value
+                }
             }
 
             double itemTotal = item.getUnitPrice() * quantity;
-            System.out.printf("        item total: $  %.2f\n", itemTotal);
+            System.out.printf("      item total: $  %.2f\n", itemTotal);
+
+            if (item.getItemCode().contains("E")) {
+                containsE = true;
+            }
             
-            purchasedItems[index++] = String.format("    %d %s         $  %.2f", quantity, item.getItemName(), itemTotal);
+            purchasedItems[index++] = String.format("    %-1d %-17s    $%8.2f", quantity, item.getItemName(), itemTotal);
             subtotal += itemTotal;
         }
 
         double totalWithTax = subtotal;
+        System.out.println("----------------------------");
+        System.out.println("Items list:");
         for (int i = 0; i < index; i++) {
             System.out.println(purchasedItems[i]);
         }
-        System.out.printf("Subtotal                    $  %.2f\n", subtotal);
-        if (Arrays.stream(purchasedItems).anyMatch(s -> s != null && s.startsWith("    E"))) {
+        System.out.printf("%-26s $%8.2f\n", "Subtotal", subtotal);
+        if (!containsE) {
             totalWithTax = subtotal * (1 + SALESTAX);
-            System.out.printf("Total with Tax (6%%)         $  %.2f\n", totalWithTax);
-            System.out.println("-----------------");
         }
+        System.out.printf("%-20s $%8.2f\n", "Total with Tax (6%)       ", totalWithTax);
+        System.out.println("----------------------------");
+
         return totalWithTax;
     }
 
