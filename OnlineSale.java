@@ -1,23 +1,26 @@
-
-
-
 // Homework 3: Online Sale System
 // Course: CIS357
 // Due date: July 17, 2024
-// Name: [Your Name]
+// Name: Samuel Karas
 // Instructor: Il-Hyung Cho
 // Program description: A Java program that emulates an online shopping system.
 
 import java.io.*;
 import java.util.*;
 
-/** Online Sale Class contains    all taken from items.csv */
+/**
+ * The OnlineSale class represents an online shopping system.
+ * It handles loading items, processing sales, and calculating totals.
+ */
 public class OnlineSale {
 
     private static final double SALESTAX = 0.06;
-    private static final int MAX_NUM_ITEMS = 15;
-    private static Item[] items = new Item[MAX_NUM_ITEMS];
+    private static final int MAX_ITEMS_CSV = 15;
+    private static Item[] items = new Item[MAX_ITEMS_CSV];
 
+    /**
+     * Main method is contained in OnlineSale class
+     */
     public static void main(String[] args) {
         loadItems();
         Scanner scanner = new Scanner(System.in);
@@ -26,7 +29,7 @@ public class OnlineSale {
         double totalSales = 0.0;
 
         while (true) {
-        	System.out.println("");
+            System.out.println("");
             System.out.print("Beginning a new sale (Y/N) ");
             String startNewSale = scanner.nextLine().trim().toLowerCase();
             if (startNewSale.equals("n")) break;
@@ -42,32 +45,43 @@ public class OnlineSale {
         scanner.close();
     }
 
+    /**
+     * Loads items from a CSV file into the items array.
+     */
     private static void loadItems() {
-        String filePath = "items.csv"; // Adjust the path as needed
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
+        String fileName = "items.csv"; // File Name for Online Sale Items
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String currLine;
             int index = 0;
             // Skip the header line
             br.readLine();
-            while ((line = br.readLine()) != null && index < MAX_NUM_ITEMS) {
-                String[] values = line.split(",");
-                // Trim whitespace from each value and parse unit price to double
-                String itemCode = values[0].trim();
-                String itemName = values[1].trim();
-                String itemDescription = values[2].trim();
-                double unitPrice = Double.parseDouble(values[3].trim());
+            while ((currLine = br.readLine()) != null && index < MAX_ITEMS_CSV) {
+                String[] item = currLine.split(",");
+                
+                // Trim the whitespace from each value and parse unit price to double
+                String itemCode = item[0].trim();
+                String itemName = item[1].trim();
+                String itemDescription = item[2].trim();
+                double unitPrice = Double.parseDouble(item[3].trim());
 
                 // Create a new Item object and add it to the items array
                 items[index++] = new Item(itemCode, itemName, itemDescription, unitPrice);
             }
-        } catch (IOException e) {
+        } catch (IOException e) {	//Catch IOException
             e.printStackTrace();
         }
     }
 
+    /**
+     * Processes a sale by prompting the user for product codes and quantities.
+     * Calculates the subtotal and total with tax, and prints the items list.
+     * 
+     * @param scanner The Scanner object for reading user input.
+     * @return The total amount for the sale including tax.
+     */
     private static double processSale(Scanner scanner) {
         double subtotal = 0.0;
-        String[] purchasedItems = new String[MAX_NUM_ITEMS];
+        String[] purchasedItems = new String[MAX_ITEMS_CSV];
         int index = 0;
         boolean containsE = false;
 
@@ -125,6 +139,12 @@ public class OnlineSale {
         return totalWithTax;
     }
 
+    /**
+     * Finds an item by its code.
+     * 
+     * @param code The product code to search for.
+     * @return The Item object if found, or null if not found.
+     */
     private static Item findItemByCode(String code) {
         for (Item item : items) {
             if (item != null && item.getItemCode().equalsIgnoreCase(code)) {
@@ -135,35 +155,59 @@ public class OnlineSale {
     }
 }
 
-/** Item Class contains itemCode,itemName,itemDesciption, and unitPrice all taken from items.csv */
+/**
+ * The Item class represents a product with its code, name, description, and unit price.
+ */
 class Item {
- private String itemCode;
- private String itemName;
- private String itemDescription;
- private double unitPrice;
+    private String itemCode;
+    private String itemName;
+    private String itemDescription;
+    private double unitPrice;
 
- /** Item Constructor to initialize new instance of the "Item" class with the provided values */
- public Item(String itemCode, String itemName, String itemDescription, double unitPrice) {
-     this.itemCode = itemCode;
-     this.itemName = itemName;
-     this.itemDescription = itemDescription;
-     this.unitPrice = unitPrice;
- }
+    /**
+     * Item Constructor to initialize a new instance of the Item class with the provided value.
+     * 
+     * @param itemCode The product code.
+     * @param itemName The name of the product.
+     * @param itemDescription The description of the product.
+     * @param unitPrice The unit price of the product.
+     */
+    public Item(String itemCode, String itemName, String itemDescription, double unitPrice) {
+        this.itemCode = itemCode;
+        this.itemName = itemName;
+        this.itemDescription = itemDescription;
+        this.unitPrice = unitPrice;
+    }
 
- /* Get methods */
- public String getItemCode() {
-     return itemCode;
- }
+    /**
+     * Gets the product code.
+     * @return The product code.
+     */
+    public String getItemCode() {
+        return itemCode;
+    }
 
- public String getItemName() {
-     return itemName;
- }
+    /**
+     * Gets the product name.
+     * @return The product name.
+     */
+    public String getItemName() {
+        return itemName;
+    }
 
- public String getItemDescription() {
-     return itemDescription;
- }
+    /**
+     * Gets the product description.
+     * @return The product description.
+     */
+    public String getItemDescription() {
+        return itemDescription;
+    }
 
- public double getUnitPrice() {
-     return unitPrice;
- }
+    /**
+     * Gets the unit price of the product.
+     * @return The unit price.
+     */
+    public double getUnitPrice() {
+        return unitPrice;
+    }
 }
